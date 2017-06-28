@@ -10,6 +10,7 @@
 
 (def rule-end-marker ::se/rule-end)
 
+; TODO: Add save/restore State!
 (def command-dispatch
   {::f #(t/move-forward move-amount)
    ::b #(t/move-backward move-amount)
@@ -58,13 +59,21 @@
           (->L-System axiom parsed-rules)
           nil)))))
 
+(defn expand-l-system [l-system n-expansions]
+  (let [{axiom :axiom, rules :rules} l-system]
+    (ls/nth-sentence [axiom] rules n-expansions)))
+
 (defn expand-l-system-genes
   "Takes a gene sequence, parses them as an L-System, and expands the system.
   Returns nil if there's a problem parsing the genes."
   [genes n-expansions]
   (when-let [l-system (parse-genes genes)]
-    (let [{axiom :axiom, rules :rules} l-system]
-      (ls/nth-sentence [axiom] rules n-expansions))))
+    (expand-l-system l-system n-expansions)))
+
+(defn draw-l-system-sentence [sentence]
+  (let [commands (map #(get command-dispatch % (fn [])) sentence)]
+    (doseq [c commands]
+      (c))))
 
 
 

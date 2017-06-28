@@ -3,6 +3,7 @@
             [helpers.general-helpers :as g]
             [ai-retry.genetic-algorithm.population :as p]))
 
+; TODO: Add save/restore State!
 (def dummy ::dummy)
 (def alphabet #{::f ::b :l ::r ::rule-end dummy})
 
