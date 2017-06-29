@@ -7,6 +7,6 @@
                  [helpers "1"]
                  [quil "2.6.0"]
                  [ai-retry "1"]]
-  :main ^:skip-aot l-system.core
+  :main  l-system.ga-test.rule-generation.main
   :target-path "target/%s"
   :profiles {:uberjar {:aot :all}})

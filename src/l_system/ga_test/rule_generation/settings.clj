@@ -1,7 +1,10 @@
 (ns l-system.ga-test.rule-generation.settings
   (:require [ai-retry.genetic-algorithm.settings :as s]
-            [helpers.general-helpers :as g]
-            [ai-retry.genetic-algorithm.population :as p]))
+            [ai-retry.genetic-algorithm.population :as p]
+
+            [l-system.ga-test.rule-generation.fitness-f :as f]
+
+            [helpers.general-helpers :as g]))
 
 ; TODO: Add save/restore State!
 (def dummy ::dummy)
@@ -18,7 +21,7 @@
 (def fit-err-comp p/std-fitness-comparator)
 
 (def problem-settings
-  (s/->Problem-Settings (constantly 0) alphabet fit-err-comp))
+  (s/->Problem-Settings f/new-fitness-f alphabet fit-err-comp))
 
 (def standard-settings
   (s/->Standard-Settings elite-perc less-perc keep-perc mutation-rate pop-size))

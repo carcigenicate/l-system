@@ -9,8 +9,8 @@
           rules))
 
 (defn next-sentence [sentence rules]
-  (reduce (fn [acc c]
-            (into acc (rules c)))
+  (reduce (fn [acc sym]
+            (into acc (rules sym [sym])))
           []
           sentence))
 
@@ -21,7 +21,7 @@
 
 (def basic-rules
   {\A "AB"
-   \B "AC"})
+   \B "A"})
 
 (def complex-rules
   {\A "ABC"

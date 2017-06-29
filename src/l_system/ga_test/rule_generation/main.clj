@@ -6,43 +6,51 @@
             [l-system.ga-test.rule-generation.fitness-f :as gaf]
             [l-system.ga-test.rule-generation.genetic-l-system :as gls]
 
-            [helpers.general-helpers :as g]))
+            [helpers.general-helpers :as g]
+            [helpers.quil-helpers :as qh]))
 
-(def width 1000)
-(def height 1000)
+(def width 1500)
+(def height 1500)
+
+; TODO: The axiom needs to allow multiple symbols
+; TODO: Multiple symbols for each action?
+; TODO: Add [ and ]
 
 ; TODO: EWW!
 ; TODO: Reset both after reading
 (def !last-rating! (atom nil))
 (def !current-l-system! (atom nil))
 
-(def n-expansions 3)
+(def n-expansions 15)
 
 (def global-rand-gen (g/new-rand-gen 99))
-
-(def settings se/rule-generation-settings)
 
 (defrecord State [population])
 
 (defn setup-state []
-  (reset! !current-l-system! (gls/->L-System ::se/f {::se/f [::l ::se/dummy ::se/r ::se/f ::se/r ::se/dummy ::se/l ::se/f ::se/rule-end]
-                                                     ::se/dummy [::se/dummy ::se/dummy]})))
+  (q/frame-rate 1)
+  (reset! !current-l-system!
+          (gls/->L-System [::se/f]
+                          {::se/f, [::se/f ::se/l ::se/f ::se/r ::se/f ::se/r ::se/f ::se/l ::se/f]}))
+  nil)
 
 
 (defn update-state [_]
   (let [cls @!current-l-system!]
-    (if cls
-      (let [sentence (gls/expand-l-system cls n-expansions)]
-        ; TODO: sentence begins with 2 Map Entries? <---------------------------
-        sentence))))
-
+       (if cls
+         (let [sentence (gls/expand-l-system cls n-expansions)]
+           sentence))))
 
 (defn draw-state [sentence]
   (when sentence
-    (clojure.pprint/pprint (map type sentence))
+    #_
     (q/background 200 200 200)
 
-    (gls/draw-l-system-sentence sentence)))
+    (q/with-translation [(* width 0.7) (* height 0.9)]
+      (qh/with-weight 2
+        (gls/draw-l-system-sentence sentence)))
+
+    (println "Drawn!")))
 
 ; TODO: Reset !last-rating! back to nil after reading
 (defn mouse-click-handler [state {x :x}]

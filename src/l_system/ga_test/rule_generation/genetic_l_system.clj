@@ -1,21 +1,24 @@
 (ns l-system.ga-test.rule-generation.genetic-l-system
   (:require [l-system.ga-test.rule-generation.settings :as se]
             [l-system.l-system :as ls]
-            [l-system.turtle :as t]))
+            [l-system.turtle :as t]
+            [quil.core :as q]))
 
 (defrecord L-System [axiom rules])
 
-(def move-amount 10)
-(def rotate-amount (/ Math/PI 8))
+(def move-amount 1)
+(def rotate-amount 1.5707964)
 
 (def rule-end-marker ::se/rule-end)
 
 ; TODO: Add save/restore State!
 (def command-dispatch
-  {::f #(t/move-forward move-amount)
-   ::b #(t/move-backward move-amount)
-   ::l #(t/turn-left rotate-amount)
-   ::r #(t/turn-right rotate-amount)})
+  {::se/f #(t/move-forward move-amount)
+   ::se/g #(t/move-forward move-amount)
+   ::se/b #(t/move-backward move-amount)
+
+   ::se/l #(t/turn-left rotate-amount)
+   ::se/r #(t/turn-right rotate-amount)})
 
 (defn remove-dummies [genes]
   (remove #{se/dummy} genes))
@@ -61,7 +64,7 @@
 
 (defn expand-l-system [l-system n-expansions]
   (let [{axiom :axiom, rules :rules} l-system]
-    (ls/nth-sentence [axiom] rules n-expansions)))
+    (ls/nth-sentence axiom rules n-expansions)))
 
 (defn expand-l-system-genes
   "Takes a gene sequence, parses them as an L-System, and expands the system.
@@ -74,6 +77,5 @@
   (let [commands (map #(get command-dispatch % (fn [])) sentence)]
     (doseq [c commands]
       (c))))
-
 
 
