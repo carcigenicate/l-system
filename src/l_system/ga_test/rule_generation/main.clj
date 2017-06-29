@@ -5,6 +5,8 @@
             [l-system.ga-test.rule-generation.settings :as se]
             [l-system.ga-test.rule-generation.fitness-f :as gaf]
             [l-system.ga-test.rule-generation.genetic-l-system :as gls]
+            [l-system.ga-test.rule-generation.mutable-states :as ms]
+            [l-system.ga-test.rule-generation.process-loop :as pl]
 
             [helpers.general-helpers :as g]
             [helpers.quil-helpers :as qh]))
@@ -16,46 +18,59 @@
 ; TODO: Multiple symbols for each action?
 ; TODO: Add [ and ]
 
-; TODO: EWW!
-; TODO: Reset both after reading
-(def !last-rating! (atom nil))
-(def !current-l-system! (atom nil))
-
-(def n-expansions 15)
+(def n-expansions 6)
+(def min-allowed-sentence-length 20)
 
 (def global-rand-gen (g/new-rand-gen 99))
 
-(defrecord State [population])
+(defn format-l-system [l-system]
+  (let [{a :axiom rs :rules} l-system]
+    (str (name a) " - "
+         (into {}
+           (for [[s t] rs]
+             [(name s) (mapv name t)])))))
+
+(defn rate-l-system [rating]
+  (dosync
+    (ref-set ms/!last-rating! rating)))
 
 (defn setup-state []
-  (q/frame-rate 1)
-  (reset! !current-l-system!
-          (gls/->L-System [::se/f]
-                          {::se/f, [::se/f ::se/l ::se/f ::se/r ::se/f ::se/r ::se/f ::se/l ::se/f]}))
+      (q/frame-rate 2)
+
+  (pl/process-loop)
+
   nil)
 
-
 (defn update-state [_]
-  (let [cls @!current-l-system!]
-       (if cls
+  (let [cls @ms/!current-l-system!]
+       (when cls
          (let [sentence (gls/expand-l-system cls n-expansions)]
-           sentence))))
+           (if (>= (count sentence) min-allowed-sentence-length)
+             (do
+               (println "Good:" (format-l-system cls))
+               sentence)
+
+             (do
+               (println "Failed! Count:" (count sentence))
+               (rate-l-system 0)
+               nil))))))
 
 (defn draw-state [sentence]
   (when sentence
-    #_
     (q/background 200 200 200)
 
-    (q/with-translation [(* width 0.7) (* height 0.9)]
+    (q/with-translation [(* width 0.5) (* height 0.5)]
       (qh/with-weight 2
-        (gls/draw-l-system-sentence sentence)))
+        (try
+          (gls/draw-l-system-sentence sentence)
 
-    (println "Drawn!")))
+          (catch RuntimeException e
+            (println "Failed:" (.getMessage e) (mapv name sentence))
+            (rate-l-system 0)))))))
 
 ; TODO: Reset !last-rating! back to nil after reading
 (defn mouse-click-handler [state {x :x}]
-  (reset! !last-rating! x))
-
+  (rate-l-system x))
 
 (defn -main []
   (q/defsketch GA-L-System-Rule-Gen-Test

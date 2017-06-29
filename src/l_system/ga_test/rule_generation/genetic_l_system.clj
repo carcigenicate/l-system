@@ -6,7 +6,7 @@
 
 (defrecord L-System [axiom rules])
 
-(def move-amount 1)
+(def move-amount 8)
 (def rotate-amount 1.5707964)
 
 (def rule-end-marker ::se/rule-end)
@@ -14,11 +14,16 @@
 ; TODO: Add save/restore State!
 (def command-dispatch
   {::se/f #(t/move-forward move-amount)
-   ::se/g #(t/move-forward move-amount)
-   ::se/b #(t/move-backward move-amount)
+   ::se/F #(t/move-forward move-amount)
 
    ::se/l #(t/turn-left rotate-amount)
-   ::se/r #(t/turn-right rotate-amount)})
+   ::se/L #(t/turn-left rotate-amount)
+
+   ::se/r #(t/turn-right rotate-amount)
+   ::se/R #(t/turn-right rotate-amount)
+
+   ::se/save t/save-state
+   ::se/load t/restore-state})
 
 (defn remove-dummies [genes]
   (remove #{se/dummy} genes))
@@ -39,7 +44,6 @@
 
     (if (not (empty? remaining-rule-string))
       (let [[rule rest-rule-string] (pop-first-rule-string remaining-rule-string)]
-        (println rule "-" rest-rule-string)
         (if (valid-rule? rule)
           (let [[source & result] rule
                 rest-rule-string' (drop 1 rest-rule-string)] ; Dropping the marker
@@ -64,7 +68,8 @@
 
 (defn expand-l-system [l-system n-expansions]
   (let [{axiom :axiom, rules :rules} l-system]
-    (ls/nth-sentence axiom rules n-expansions)))
+    ; Assumes axiom is bare. Not wrapped in a list.
+    (ls/nth-sentence [axiom] rules n-expansions)))
 
 (defn expand-l-system-genes
   "Takes a gene sequence, parses them as an L-System, and expands the system.
