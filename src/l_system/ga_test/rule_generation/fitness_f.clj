@@ -12,7 +12,8 @@
     (if l-system?
       (do
         ; Show l-system
-        (reset! ms/!current-l-system! l-system?)
+        (dosync
+          (ref-set ms/!current-l-system! l-system?))
 
         (while (nil? @ms/!last-rating!)
           (Thread/sleep listener-loop-delay))

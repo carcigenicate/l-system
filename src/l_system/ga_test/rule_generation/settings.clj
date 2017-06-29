@@ -9,7 +9,7 @@
 (def alphabet #{::F ::f
                 ::L ::l
                 ::R ::r
-                ::save ::load
+                #_::save #_::load
 
                 ::rule-end
                 dummy})

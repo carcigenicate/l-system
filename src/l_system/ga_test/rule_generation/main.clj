@@ -21,7 +21,7 @@
 (def n-expansions 6)
 (def min-allowed-sentence-length 20)
 
-(def global-rand-gen (g/new-rand-gen 99))
+(def global-rand-gen (g/new-rand-gen))
 
 (defn format-l-system [l-system]
   (let [{a :axiom rs :rules} l-system]
@@ -35,25 +35,27 @@
     (ref-set ms/!last-rating! rating)))
 
 (defn setup-state []
-      (q/frame-rate 2)
+  (q/frame-rate 30)
 
   (pl/process-loop)
 
   nil)
 
-(defn update-state [_]
-  (let [cls @ms/!current-l-system!]
-       (when cls
-         (let [sentence (gls/expand-l-system cls n-expansions)]
-           (if (>= (count sentence) min-allowed-sentence-length)
+(defn update-state [sentence]
+  (let [cls (ms/read-and-clear ms/!current-l-system!)]
+       (if cls
+         (let [sentence' (gls/expand-l-system cls n-expansions)]
+           (if (>= (count sentence') min-allowed-sentence-length)
              (do
                (println "Good:" (format-l-system cls))
-               sentence)
+               sentence')
 
              (do
-               (println "Failed! Count:" (count sentence))
+               (println "Failed! Count:" (count sentence'))
                (rate-l-system 0)
-               nil))))))
+               nil)))
+
+         sentence)))
 
 (defn draw-state [sentence]
   (when sentence
@@ -70,7 +72,8 @@
 
 ; TODO: Reset !last-rating! back to nil after reading
 (defn mouse-click-handler [state {x :x}]
-  (rate-l-system x))
+  (rate-l-system x)
+  state)
 
 (defn -main []
   (q/defsketch GA-L-System-Rule-Gen-Test

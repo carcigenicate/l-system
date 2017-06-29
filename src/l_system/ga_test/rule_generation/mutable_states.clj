@@ -8,4 +8,4 @@
 
 ; TODO: EWW!
 (def !last-rating! (ref nil))
-(def !current-l-system! (atom nil))
+(def !current-l-system! (ref nil))
