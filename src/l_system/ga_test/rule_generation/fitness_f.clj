@@ -3,6 +3,11 @@
             [helpers.general-helpers :as g]
             [l-system.ga-test.rule-generation.mutable-states :as ms]))
 
+; TODO: Appropriate place?
+(def n-expansions 6)
+(def min-allowed-sentence-length 20)
+
+(def min-score 0)
 
 (def listener-loop-delay 333)
 
@@ -10,15 +15,20 @@
   (let [l-system? (gls/parse-genes genes)]
 
     (if l-system?
-      (do
-        ; Show l-system
-        (dosync
-          (ref-set ms/!current-l-system! l-system?))
+      (let [expanded (gls/expand-l-system l-system? n-expansions)]
 
-        (while (nil? @ms/!last-rating!)
-          (Thread/sleep listener-loop-delay))
+        (if (> (count expanded) min-allowed-sentence-length)
+          (do
+            ; Show l-system
+            (dosync
+              (ref-set ms/!current-l-system! l-system?))
 
-        (let [rating (ms/read-and-clear ms/!last-rating!)]
-          rating))
+            (while (nil? @ms/!last-rating!)
+              (Thread/sleep listener-loop-delay))
 
-      0)))
+            (let [rating (ms/read-and-clear ms/!last-rating!)]
+              rating))
+
+          min-score))
+
+      min-score)))

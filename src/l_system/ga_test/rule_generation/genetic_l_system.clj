@@ -6,7 +6,7 @@
 
 (defrecord L-System [axiom rules])
 
-(def move-amount 8)
+(def move-amount 15)
 (def rotate-amount 1.5707964)
 
 (def rule-end-marker ::se/rule-end)

@@ -9,12 +9,12 @@
 (def alphabet #{::F ::f
                 ::L ::l
                 ::R ::r
-                #_::save #_::load
+                ::save ::load
 
                 ::rule-end
                 dummy})
 
-(def pop-size 20)
+(def pop-size 50)
 (def mutation-rate 0.05)
 (def elite-perc 0.4)
 (def less-perc 0.4)
